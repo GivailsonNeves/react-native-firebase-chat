@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "230217929050",
+    "project_id": "trashchat-2a0be",
+    "storage_bucket": "trashchat-2a0be.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:230217929050:android:5ab8dff581d0784d1d2363",
+        "android_client_info": {
+          "package_name": "com.company.trashchat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "230217929050-bpaes1oqhae9cugbcq3pdjg1jbs9kpjd.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD2mD7Xo20R8VGeqZ69dmoM_AcjXGpelN8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "230217929050-bpaes1oqhae9cugbcq3pdjg1jbs9kpjd.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "230217929050-3qngrfjfqjekl7buelc87ic0h368hmg2.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.company.trashchat"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
