@@ -4,12 +4,12 @@ import { IconButton, TextInput } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 
 type Props = {
-  onSubmit: (text: string, photo?: File) => Promise<void> | void;
+  onSubmit: (text: string, photo?: any) => Promise<void> | void;
 };
 
 export function MessageForm({ onSubmit }: Props) {
   const [text, setText] = useState("");
-  const [image, setImage] = useState<string | null>(null);
+  const [image, setImage] = useState<any>(null);
   const [actionsVisible, setActionsVisible] = useState(false);
 
   const pickImage = async () => {
@@ -22,15 +22,13 @@ export function MessageForm({ onSubmit }: Props) {
       quality: 1,
     });
 
-    console.log(result);
-
     if (!result.canceled) {
       setImage(result.assets[0].uri);
     }
   };
 
   const handleSubmit = async () => {
-    await onSubmit(text);
+    await onSubmit(text, image);
     setText("");
   };
 

@@ -1,5 +1,6 @@
 import { ChatItem } from "@/components";
-import firestore from "@react-native-firebase/firestore";
+
+import { User } from "@/models";
 import { useRouter } from "expo-router";
 import React, { useMemo } from "react";
 import {
@@ -11,16 +12,15 @@ import {
   View,
 } from "react-native";
 import { AnimatedFAB, IconButton, Menu, Searchbar } from "react-native-paper";
+import { useChatContext, useUsersContext } from "../context";
 import { useSession } from "../context/auth.ctx";
-import { useUsersContext } from "../context";
-import { User } from "@/models";
-import { Chat } from "@/models/chat";
 
 export default function IndexPage() {
   const router = useRouter();
 
-  const { logout, user } = useSession();
+  const { logout } = useSession();
   const { users } = useUsersContext();
+  const { chats, messagesByKey } = useChatContext();
 
   const usersById = useMemo(() => {
     return users.reduce((acc: { [key: string]: User }, user) => {
@@ -32,30 +32,6 @@ export default function IndexPage() {
   const [visible, setVisible] = React.useState(false);
   const [isExtended, setIsExtended] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [chats, setChats] = React.useState<Chat[]>([]);
-
-  React.useEffect(() => {
-    const subscriber = firestore()
-      .collection("chats")
-      .where("participants", "array-contains", user?.uid)
-      .onSnapshot((querySnapshot) => {
-        const _chats: Chat[] = [];
-
-        querySnapshot.forEach((documentSnapshot) => {
-          _chats.push({
-            participants: documentSnapshot.data().participants,
-            id: documentSnapshot.id,
-            participantId: documentSnapshot
-              .data()
-              .participants.find((p: string) => p !== user?.uid),
-          });
-        });
-
-        setChats(_chats);
-      });
-
-    return () => subscriber();
-  }, [user?.uid]);
 
   const _logout = () => {
     logout();
@@ -105,7 +81,12 @@ export default function IndexPage() {
             chat={item}
             key={item.id}
             user={usersById[item.participantId]}
-            onPress={() => router.push(`/(chat)/message/${item.participantId}`)}
+            onPress={() =>
+              router.push({
+                pathname: "/(chat)/message/[id]",
+                params: { id: item.participantId, chatId: item.id },
+              })
+            }
           />
         ))}
       </ScrollView>

@@ -1,10 +1,19 @@
-import { useUsersContext } from "@/app/context";
+import { useSession, useUsersContext } from "@/app/context";
 import { MessageBox, MessageForm } from "@/components";
+import { useChatMessage } from "@/hooks/useChatMessage";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useMemo } from "react";
-import { Dimensions, FlatList, Keyboard, StyleSheet, View } from "react-native";
+import { useMemo, useRef, useState } from "react";
+import {
+  Dimensions,
+  FlatList,
+  Keyboard,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  StyleSheet,
+  View,
+} from "react-native";
 import { useKeyboardHandler } from "react-native-keyboard-controller";
-import { Appbar } from "react-native-paper";
+import { Appbar, FAB } from "react-native-paper";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -30,12 +39,25 @@ const useGradualAnimation = () => {
 
 export default function ForgetPage() {
   const router = useRouter();
+
+  const listRef = useRef<FlatList>(null);
+
+  const { user } = useSession();
   const { findUser } = useUsersContext();
-  const { id } = useLocalSearchParams();
+  const { id, chatId } = useLocalSearchParams();
+
+  const [isExtended, setIsExtended] = useState(false);
+
+  const { messages, sendMessage } = useChatMessage({
+    chatId: String(chatId),
+    userId: user?.uid || "",
+  });
 
   const { height } = useGradualAnimation();
 
-  const user = useMemo(() => findUser(String(id)), [id, findUser]);
+  const recipe = useMemo(() => {
+    return findUser(String(id));
+  }, [id, findUser]);
 
   const keyboardSpacer = useAnimatedStyle(() => {
     return {
@@ -44,29 +66,18 @@ export default function ForgetPage() {
     };
   });
 
-  const DATA = [
-    {
-      id: "bd7acbea-c1b1-46c2-aed5-3ad53abb28ba",
-      text: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec novo texto gigante de teste",
-      visualized: false,
-      liked: false,
-      isSender: true,
-    },
-    {
-      id: "3ac68afc-c605-48d3-a4f8-fbd91aa97f63",
-      text: "lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec",
-      visualized: false,
-      liked: true,
-      isSender: false,
-    },
-    {
-      id: "58694a0f-3da1-471f-bd96-145571e29d72",
-      text: "oi",
-      visualized: false,
-      liked: false,
-      isSender: true,
-    },
-  ];
+  const onScroll = ({
+    nativeEvent,
+  }: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const currentScrollPosition =
+      Math.floor(nativeEvent?.contentOffset?.y) ?? 0;
+
+    setIsExtended(currentScrollPosition > 200);
+  };
+
+  const handleScrollToTop = () => {
+    listRef.current?.scrollToOffset({ offset: 0, animated: true });
+  };
 
   const _goBack = () => router.back();
 
@@ -82,16 +93,16 @@ export default function ForgetPage() {
       >
         <Appbar.Header mode="small">
           <Appbar.BackAction onPress={_goBack} />
-          <Appbar.Content title={user?.email.split("@")[0] || "NA"} />
+          <Appbar.Content title={recipe?.email.split("@")[0] || "NA"} />
         </Appbar.Header>
         <FlatList
-          data={DATA}
+          ref={listRef}
+          data={messages}
           renderItem={({ item }) => (
             <MessageBox
-              {...item}
+              message={item}
               onDoubleTap={async () => {
                 "worklet";
-                console.log("favorite");
               }}
             />
           )}
@@ -100,11 +111,23 @@ export default function ForgetPage() {
             padding: 8,
             gap: 8,
           }}
+          onScroll={onScroll}
           keyboardDismissMode="on-drag"
           inverted
         />
+        <FAB
+          icon="chevron-down"
+          style={styles.fab}
+          size="small"
+          visible={isExtended}
+          onPress={handleScrollToTop}
+        />
         <MessageForm
-          onSubmit={() => {
+          onSubmit={(text, photo) => {
+            sendMessage({
+              text,
+              photoUrl: photo,
+            });
             Keyboard.dismiss();
           }}
         />
@@ -114,4 +137,11 @@ export default function ForgetPage() {
   );
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  fab: {
+    position: "absolute",
+    margin: 16,
+    right: 0,
+    bottom: 90,
+  },
+});

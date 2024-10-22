@@ -1,3 +1,4 @@
+import { Message } from "@/models";
 import { Ionicons } from "@expo/vector-icons";
 import { View, StyleSheet } from "react-native";
 import {
@@ -8,19 +9,12 @@ import {
 import { Text } from "react-native-paper";
 
 export type Props = {
-  text: string;
-  liked: boolean;
-  visualized?: boolean;
-  image?: string;
-  isSender: boolean;
+  message: Message;
   onDoubleTap?: () => Promise<void>;
 };
 
 export function MessageBox({
-  text,
-  liked,
-  visualized,
-  isSender,
+  message: { text, liked, isSender, visualized, createdAt },
   onDoubleTap,
 }: Props) {
   const doubleTap = Gesture.Tap()
@@ -57,6 +51,7 @@ export function MessageBox({
                 borderRadius: 8,
                 padding: 8,
                 position: "relative",
+                marginBottom: 20,
               }}
             >
               {liked && (
@@ -68,6 +63,15 @@ export function MessageBox({
                 />
               )}
               <Text>{text}</Text>
+              <Text
+                style={{
+                  color: "#999",
+                  marginTop: 2,
+                  fontSize: 10,
+                }}
+              >
+                {createdAt?.toLocaleTimeString()}
+              </Text>
             </View>
           </View>
           {isSender && (
