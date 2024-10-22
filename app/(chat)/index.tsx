@@ -1,4 +1,5 @@
 import { useRouter } from "expo-router";
+import firestore from "@react-native-firebase/firestore";
 import React from "react";
 import {
   NativeScrollEvent,
@@ -162,16 +163,40 @@ const list = [
 export default function IndexPage() {
   const router = useRouter();
 
-  const { logout } = useSession();
+  const { logout, user } = useSession();
 
   const [visible, setVisible] = React.useState(false);
   const [isExtended, setIsExtended] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [chats, setChats] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    const subscriber = firestore()
+      .collection("chats")
+      .where("participants", "array-contains", user?.uid)
+      .onSnapshot((querySnapshot) => {
+        const _chats: any[] = [];
+
+        querySnapshot.forEach((documentSnapshot) => {
+          _chats.push({
+            ...documentSnapshot.data(),
+            key: documentSnapshot.id,
+          });
+        });
+
+        setChats(_chats);
+      });
+
+    return () => subscriber();
+  }, [user?.uid]);
+
+  console.log(chats);
 
   const _logout = () => {
     logout();
     router.replace("/(auth)/login");
   };
+
   const _handleMore = () => setVisible(true);
 
   const onScroll = ({

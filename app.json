@@ -23,6 +23,7 @@
         "backgroundColor": "#ffffff"
       },
       "package": "com.company.trashchat",
+      "softwareKeyboardLayoutMode": "pan",
       "googleServicesFile": "./google-services.json"
     },
     "web": {
@@ -42,6 +43,12 @@
           }
         }
       
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "The app accesses your photos to let you share them with your friends."
+        }
       ]
     ],
     "experiments": {
