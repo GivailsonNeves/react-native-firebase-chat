@@ -1,14 +1,8 @@
+import { useUsersContext } from "@/app/context";
 import { MessageBox, MessageForm } from "@/components";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import {
-  Dimensions,
-  ScrollView,
-  StyleSheet,
-  View,
-  Text,
-  Keyboard,
-  FlatList,
-} from "react-native";
+import { useMemo } from "react";
+import { Dimensions, FlatList, Keyboard, StyleSheet, View } from "react-native";
 import { useKeyboardHandler } from "react-native-keyboard-controller";
 import { Appbar } from "react-native-paper";
 import Animated, {
@@ -36,9 +30,12 @@ const useGradualAnimation = () => {
 
 export default function ForgetPage() {
   const router = useRouter();
+  const { findUser } = useUsersContext();
   const { id } = useLocalSearchParams();
 
   const { height } = useGradualAnimation();
+
+  const user = useMemo(() => findUser(String(id)), [id, findUser]);
 
   const keyboardSpacer = useAnimatedStyle(() => {
     return {
@@ -71,17 +68,8 @@ export default function ForgetPage() {
     },
   ];
 
-  type ItemProps = { title: string };
-
-  const Item = ({ title }: ItemProps) => (
-    <View>
-      <Text>{title}</Text>
-    </View>
-  );
-
   const _goBack = () => router.back();
-  const _handleSearch = () => console.log("Searching");
-  const _handleMore = () => console.log("Shown more");
+
   return (
     <>
       <View
@@ -94,7 +82,7 @@ export default function ForgetPage() {
       >
         <Appbar.Header mode="small">
           <Appbar.BackAction onPress={_goBack} />
-          <Appbar.Content title="Users" />
+          <Appbar.Content title={user?.email.split("@")[0] || "NA"} />
         </Appbar.Header>
         <FlatList
           data={DATA}

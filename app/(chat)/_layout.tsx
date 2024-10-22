@@ -1,6 +1,6 @@
 import { Redirect, Stack } from "expo-router";
 import "react-native-reanimated";
-import { useSession } from "../context/auth.ctx";
+import { UsersProvider, useSession } from "../context";
 
 export default function Layout() {
   const { user } = useSession();
@@ -10,17 +10,19 @@ export default function Layout() {
   }
 
   return (
-    <Stack
-      screenOptions={{
-        headerShown: false,
-      }}
-    >
-      <Stack.Screen
-        name="contacts"
-        options={{
-          animation: "slide_from_bottom",
+    <UsersProvider>
+      <Stack
+        screenOptions={{
+          headerShown: false,
         }}
-      />
-    </Stack>
+      >
+        <Stack.Screen
+          name="contacts"
+          options={{
+            animation: "slide_from_bottom",
+          }}
+        />
+      </Stack>
+    </UsersProvider>
   );
 }

@@ -1,32 +1,28 @@
 import { useRouter } from "expo-router";
-import React from "react";
-import { SafeAreaView, View, StyleSheet, ScrollView } from "react-native";
-import { Appbar, Button, List, Searchbar, Text } from "react-native-paper";
+import React, { useEffect } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { Appbar, List, Searchbar } from "react-native-paper";
+import { useSession, useUsersContext } from "../context";
 
 export default function ContactsPage() {
   const _goBack = () => router.back();
+  const { user } = useSession();
 
-  const [userList, setUserList] = React.useState([]);
+  const { refetch, users } = useUsersContext();
 
   const [searchQuery, setSearchQuery] = React.useState("");
 
-  React.useEffect(() => {
-    const loadData = async () => {
-      try {
-        const response = await fetch(
-          "http://127.0.0.1:5001/trashchat-2a0be/us-central1/users"
-        );
-        const { users } = await response.json();
-        setUserList(users);
-      } catch (error) {
-        console.error(error);
-      }
-    };
+  const userList = users.filter((u) => u.uid !== user?.uid);
 
-    loadData();
+  const userListFiltered = userList.filter((user) =>
+    searchQuery
+      ? user.email.toLowerCase().includes(searchQuery.toLowerCase())
+      : true
+  );
+
+  useEffect(() => {
+    refetch();
   }, []);
-
-  console.log(userList);
 
   const router = useRouter();
   return (
@@ -52,7 +48,7 @@ export default function ContactsPage() {
         </View>
       </View>
       <ScrollView>
-        {userList?.map((user: any) => (
+        {userListFiltered?.map((user: any) => (
           <List.Item
             key={user.uid}
             title={user.email}

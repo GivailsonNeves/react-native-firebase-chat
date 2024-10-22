@@ -1,186 +1,53 @@
-import { useRouter } from "expo-router";
+import { ChatItem } from "@/components";
 import firestore from "@react-native-firebase/firestore";
-import React from "react";
+import { useRouter } from "expo-router";
+import React, { useMemo } from "react";
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   SafeAreaView,
   ScrollView,
   StyleSheet,
-  Text,
   View,
 } from "react-native";
-import {
-  AnimatedFAB,
-  Avatar,
-  Badge,
-  IconButton,
-  List,
-  Menu,
-  Searchbar,
-} from "react-native-paper";
+import { AnimatedFAB, IconButton, Menu, Searchbar } from "react-native-paper";
 import { useSession } from "../context/auth.ctx";
-
-const list = [
-  {
-    id: 1,
-    name: "John 1",
-  },
-  {
-    id: 2,
-    name: "Doe",
-  },
-  {
-    id: 3,
-    name: "Jane",
-  },
-  {
-    id: 4,
-    name: "Smith",
-  },
-  {
-    id: 5,
-    name: "Doe",
-  },
-  {
-    id: 6,
-    name: "Jane",
-  },
-  {
-    id: 7,
-    name: "Smith",
-  },
-  {
-    id: 8,
-    name: "Doe",
-  },
-  {
-    id: 9,
-    name: "Jane",
-  },
-  {
-    id: 10,
-    name: "Smith",
-  },
-  {
-    id: 11,
-    name: "Doe",
-  },
-  {
-    id: 12,
-    name: "Jane",
-  },
-  {
-    id: 13,
-    name: "Smith",
-  },
-  {
-    id: 14,
-    name: "Doe",
-  },
-  {
-    id: 15,
-    name: "Jane",
-  },
-  {
-    id: 16,
-    name: "Smith",
-  },
-  {
-    id: 17,
-    name: "Doe",
-  },
-  {
-    id: 18,
-    name: "Jane",
-  },
-  {
-    id: 19,
-    name: "Smith",
-  },
-  {
-    id: 20,
-    name: "Doe",
-  },
-  {
-    id: 21,
-    name: "Jane",
-  },
-  {
-    id: 22,
-    name: "Smith",
-  },
-  {
-    id: 23,
-    name: "Doe",
-  },
-  {
-    id: 24,
-    name: "Jane",
-  },
-  {
-    id: 25,
-    name: "Smith",
-  },
-  {
-    id: 26,
-    name: "Doe",
-  },
-  {
-    id: 27,
-    name: "Jane",
-  },
-  {
-    id: 28,
-    name: "Smith",
-  },
-  {
-    id: 29,
-    name: "Doe",
-  },
-  {
-    id: 30,
-    name: "Jane",
-  },
-  {
-    id: 31,
-    name: "Smith",
-  },
-  {
-    id: 32,
-    name: "Doe",
-  },
-  {
-    id: 33,
-    name: "Jane",
-  },
-  {
-    id: 34,
-    name: "Smith x",
-  },
-];
+import { useUsersContext } from "../context";
+import { User } from "@/models";
+import { Chat } from "@/models/chat";
 
 export default function IndexPage() {
   const router = useRouter();
 
   const { logout, user } = useSession();
+  const { users } = useUsersContext();
+
+  const usersById = useMemo(() => {
+    return users.reduce((acc: { [key: string]: User }, user) => {
+      acc[user.uid] = user;
+      return acc;
+    }, {});
+  }, [users]);
 
   const [visible, setVisible] = React.useState(false);
   const [isExtended, setIsExtended] = React.useState(true);
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [chats, setChats] = React.useState<any[]>([]);
+  const [chats, setChats] = React.useState<Chat[]>([]);
 
   React.useEffect(() => {
     const subscriber = firestore()
       .collection("chats")
       .where("participants", "array-contains", user?.uid)
       .onSnapshot((querySnapshot) => {
-        const _chats: any[] = [];
+        const _chats: Chat[] = [];
 
         querySnapshot.forEach((documentSnapshot) => {
           _chats.push({
-            ...documentSnapshot.data(),
-            key: documentSnapshot.id,
+            participants: documentSnapshot.data().participants,
+            id: documentSnapshot.id,
+            participantId: documentSnapshot
+              .data()
+              .participants.find((p: string) => p !== user?.uid),
           });
         });
 
@@ -189,8 +56,6 @@ export default function IndexPage() {
 
     return () => subscriber();
   }, [user?.uid]);
-
-  console.log(chats);
 
   const _logout = () => {
     logout();
@@ -235,44 +100,12 @@ export default function IndexPage() {
         </Menu>
       </View>
       <ScrollView onScroll={onScroll} style={styles.list}>
-        {list.map((item) => (
-          <List.Item
-            onPress={() => router.push(`/(chat)/message/${item.id}`)}
+        {chats.map((item) => (
+          <ChatItem
+            chat={item}
             key={item.id}
-            title={(props) => (
-              <View
-                {...props}
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  width: "100%",
-                }}
-              >
-                <Text>{item.name}</Text>
-                <Text style={{ fontSize: 10 }}>09:30</Text>
-              </View>
-            )}
-            // right={(props) => <List.Icon {...props} icon="chevron-right" />}
-            description={
-              <View
-                style={{
-                  flexDirection: "row",
-                  justifyContent: "space-between",
-                  width: "100%",
-                }}
-              >
-                <Text>Last message...</Text>
-                <Badge>3</Badge>
-              </View>
-            }
-            left={(props) => (
-              <Avatar.Text
-                {...props}
-                size={36}
-                theme={{ colors: { primary: "green" } }}
-                label={item.name.substring(0, 1)}
-              />
-            )}
+            user={usersById[item.participantId]}
+            onPress={() => router.push(`/(chat)/message/${item.participantId}`)}
           />
         ))}
       </ScrollView>
