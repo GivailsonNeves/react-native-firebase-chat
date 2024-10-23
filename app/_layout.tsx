@@ -2,19 +2,20 @@ import { useFonts } from "expo-font";
 import { Slot } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
-import "react-native-reanimated";
 import { KeyboardProvider } from "react-native-keyboard-controller";
+import "react-native-reanimated";
+import en from "javascript-time-ago/locale/en";
+import TimeAgo from "javascript-time-ago";
 
-// import { useColorScheme } from "@/hooks/useColorScheme";
+import { theme } from "@/constants/Theme";
 import { PaperProvider } from "react-native-paper";
 import { SessionProvider } from "./context/auth.ctx";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
+TimeAgo.addDefaultLocale(en);
+
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
-  // const colorScheme = useColorScheme();
   const [loaded] = useFonts({
     SpaceMono: require("../assets/fonts/SpaceMono-Regular.ttf"),
   });
@@ -31,13 +32,11 @@ export default function RootLayout() {
 
   return (
     <KeyboardProvider>
-      <GestureHandlerRootView>
-        <PaperProvider>
-          <SessionProvider>
-            <Slot />
-          </SessionProvider>
-        </PaperProvider>
-      </GestureHandlerRootView>
+      <PaperProvider theme={theme}>
+        <SessionProvider>
+          <Slot />
+        </SessionProvider>
+      </PaperProvider>
     </KeyboardProvider>
   );
 }

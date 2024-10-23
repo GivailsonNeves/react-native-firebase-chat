@@ -1,8 +1,10 @@
 import { useSession, useUsersContext } from "@/app/context";
 import { MessageBox, MessageForm } from "@/components";
 import { useChatMessage } from "@/hooks/useChatMessage";
+import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { extractNameFromEmail } from "@/utils";
 import {
   Dimensions,
   FlatList,
@@ -37,10 +39,13 @@ const useGradualAnimation = () => {
   return { height };
 };
 
-export default function ForgetPage() {
+export default function MessagesPage() {
   const router = useRouter();
 
   const listRef = useRef<FlatList>(null);
+  const [status, requestPermission] = ImagePicker.useCameraPermissions();
+
+  console.log({ status });
 
   const { user } = useSession();
   const { findUser } = useUsersContext();
@@ -48,12 +53,16 @@ export default function ForgetPage() {
 
   const [isExtended, setIsExtended] = useState(false);
 
-  const { messages, sendMessage } = useChatMessage({
+  const { messages, sendMessage, toggleFavorite, isSending } = useChatMessage({
     chatId: String(chatId),
     userId: user?.uid || "",
   });
 
   const { height } = useGradualAnimation();
+
+  useEffect(() => {
+    requestPermission();
+  }, [requestPermission]);
 
   const recipe = useMemo(() => {
     return findUser(String(id));
@@ -81,6 +90,11 @@ export default function ForgetPage() {
 
   const _goBack = () => router.back();
 
+  const handleSubmit = async (text: string, photoUrl: string) => {
+    await sendMessage({ text, photoUrl });
+    Keyboard.dismiss();
+  };
+
   return (
     <>
       <View
@@ -88,12 +102,11 @@ export default function ForgetPage() {
           flex: 1,
           height: Dimensions.get("window").height,
           flexDirection: "column",
-          backgroundColor: "green",
         }}
       >
         <Appbar.Header mode="small">
           <Appbar.BackAction onPress={_goBack} />
-          <Appbar.Content title={recipe?.email.split("@")[0] || "NA"} />
+          <Appbar.Content title={extractNameFromEmail(recipe?.email)} />
         </Appbar.Header>
         <FlatList
           ref={listRef}
@@ -102,15 +115,13 @@ export default function ForgetPage() {
             <MessageBox
               message={item}
               onDoubleTap={async () => {
-                "worklet";
+                console.log("double tap");
+                toggleFavorite(item.id).catch(console.error);
               }}
             />
           )}
           keyExtractor={(item) => item.id}
-          contentContainerStyle={{
-            padding: 8,
-            gap: 8,
-          }}
+          contentContainerStyle={styles.listInner}
           onScroll={onScroll}
           keyboardDismissMode="on-drag"
           inverted
@@ -122,15 +133,7 @@ export default function ForgetPage() {
           visible={isExtended}
           onPress={handleScrollToTop}
         />
-        <MessageForm
-          onSubmit={(text, photo) => {
-            sendMessage({
-              text,
-              photoUrl: photo,
-            });
-            Keyboard.dismiss();
-          }}
-        />
+        <MessageForm onSubmit={handleSubmit} isSending={isSending} />
         <Animated.View style={keyboardSpacer} />
       </View>
     </>
@@ -138,9 +141,14 @@ export default function ForgetPage() {
 }
 
 const styles = StyleSheet.create({
+  listInner: {
+    padding: 8,
+    gap: 8,
+  },
   fab: {
     position: "absolute",
     margin: 16,
+    opacity: 0.8,
     right: 0,
     bottom: 90,
   },

@@ -1,68 +1,41 @@
+import { ForgetPasswordForm } from "@/components/auth/ForgetPasswordForm";
 import { useRouter } from "expo-router";
 import React from "react";
-import { SafeAreaView, StyleSheet, View } from "react-native";
-import { Button, Divider, Text, TextInput } from "react-native-paper";
+import { Keyboard, SafeAreaView, StyleSheet } from "react-native";
+import { useSession } from "../context";
+import { Snackbar } from "react-native-paper";
 
 export default function ForgetPage() {
   const router = useRouter();
+  const { recovery, loading } = useSession();
+  const [error, setError] = React.useState("");
 
-  const [email, setEmail] = React.useState("");
-
-  const handleLogin = () => {
-    router.replace("/(chat)");
+  const handleResetPassword = async (email: string) => {
+    try {
+      Keyboard.dismiss();
+      await recovery(email);
+      router.replace("/(auth)/login");
+    } catch (error) {
+      setError("Please check your email and try again");
+    }
   };
+
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.content}>
-        <View>
-          <Text
-            style={{
-              marginBottom: 16,
-              textAlign: "center",
-            }}
-            variant="displaySmall"
-          >
-            Recovery
-          </Text>
-          <TextInput
-            label="Email"
-            value={email}
-            mode="outlined"
-            onChangeText={(text) => setEmail(text)}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            style={styles.input}
-          />
-          <Button
-            mode="contained"
-            onPress={handleLogin}
-            style={styles.button}
-            contentStyle={styles.buttonContent}
-          >
-            Recovery
-          </Button>
-        </View>
-        <Divider
-          style={{
-            marginVertical: 20,
-          }}
-        />
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "center",
-            gap: 36,
-          }}
-        >
-          <Button
-            onPress={() => {
-              router.back();
-            }}
-          >
-            Cancel
-          </Button>
-        </View>
-      </View>
+      <ForgetPasswordForm
+        onForget={handleResetPassword}
+        loading={loading}
+        onBack={() => router.back()}
+      />
+      <Snackbar
+        visible={!!error}
+        onDismiss={() => setError("")}        
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setError(""),
+        }}
+      >{error}</Snackbar>
     </SafeAreaView>
   );
 }
@@ -72,17 +45,5 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flexDirection: "column",
     flex: 1,
-  },
-  content: {
-    padding: 16,
-  },
-  input: {
-    marginBottom: 16,
-  },
-  button: {
-    marginTop: 16,
-  },
-  buttonContent: {
-    paddingVertical: 8,
   },
 });

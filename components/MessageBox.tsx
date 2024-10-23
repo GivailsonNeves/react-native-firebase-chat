@@ -1,11 +1,14 @@
+import { useAppTheme } from "@/hooks";
 import { Message } from "@/models";
+import { timeAgo } from "@/utils";
 import { Ionicons } from "@expo/vector-icons";
-import { View, StyleSheet } from "react-native";
+import { useState } from "react";
 import {
-  Gesture,
-  GestureDetector,
-  TapGestureHandler,
-} from "react-native-gesture-handler";
+  Image,
+  StyleSheet,
+  TouchableWithoutFeedback,
+  View,
+} from "react-native";
 import { Text } from "react-native-paper";
 
 export type Props = {
@@ -14,45 +17,41 @@ export type Props = {
 };
 
 export function MessageBox({
-  message: { text, liked, isSender, visualized, createdAt },
+  message: { text, photoUrl, liked, isSender, createdAt },
   onDoubleTap,
 }: Props) {
-  const doubleTap = Gesture.Tap()
-    .numberOfTaps(2)
-    .onStart(() => {
-      onDoubleTap?.();
-    });
+  const [lastPress, setLastPress] = useState(0);
+
+  const { colors } = useAppTheme();
+
+  const handleDoubleClick = () => {
+    const time = new Date().getTime();
+    const delta = time - lastPress;
+
+    if (delta < 300) {
+      !isSender && onDoubleTap?.();
+    }
+
+    setLastPress(time);
+  };
 
   return (
-    <GestureDetector gesture={doubleTap}>
-      <View
-        style={{
-          gap: 10,
-        }}
-      >
-        <View
-          style={{
-            flexDirection: "row",
-            width: "100%",
-            gap: 8,
-            alignContent: "center",
-          }}
-        >
+    <TouchableWithoutFeedback onPress={handleDoubleClick} disabled={isSender}>
+      <View style={styles.container}>
+        <View style={styles.content}>
           <View
             style={{
               flex: 1,
-
               flexDirection: !isSender ? "row" : "row-reverse",
             }}
           >
             <View
-              style={{
-                backgroundColor: "#f0f0f0",
-                borderRadius: 8,
-                padding: 8,
-                position: "relative",
-                marginBottom: 20,
-              }}
+              style={[
+                styles.textContent,
+                {
+                  backgroundColor: colors.surfaceVariant,
+                },
+              ]}
             >
               {liked && (
                 <Ionicons
@@ -62,46 +61,47 @@ export function MessageBox({
                   size={16}
                 />
               )}
+              {photoUrl && (
+                <Image source={{ uri: photoUrl }} style={styles.image} />
+              )}
               <Text>{text}</Text>
-              <Text
-                style={{
-                  color: "#999",
-                  marginTop: 2,
-                  fontSize: 10,
-                }}
-              >
-                {createdAt?.toLocaleTimeString()}
+              <Text style={styles.messageTime}>
+                {timeAgo(createdAt)}
               </Text>
             </View>
           </View>
-          {isSender && (
-            <>
-              {visualized ? (
-                <Ionicons name="checkmark-done" size={28} color="black" />
-              ) : (
-                <Ionicons name="checkmark" size={18} color="black" />
-              )}
-            </>
-          )}
         </View>
       </View>
-    </GestureDetector>
+    </TouchableWithoutFeedback>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    gap: 10,
+  },
+  content: {
     flexDirection: "row",
-    alignItems: "center",
+    width: "100%",
     gap: 8,
+    alignContent: "center",
   },
   textContent: {
     borderRadius: 8,
-    flex: 1,
+    elevation: 2,
     padding: 8,
-    backgroundColor: "#fff",
     position: "relative",
+    marginBottom: 20,
+  },
+  messageTime: {
+    color: "#999",
+    marginTop: 2,
+    fontSize: 10,
+  },
+  image: {
+    width: 100,
+    height: 100,
+    borderRadius: 8,
   },
   icon: {
     position: "absolute",

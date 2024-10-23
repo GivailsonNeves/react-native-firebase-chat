@@ -13,19 +13,11 @@ type MessageByKeyType = { [key: string]: Message[] };
 type ChatContextType = {
   messagesByKey: MessageByKeyType;
   chats: Chat[];
-  sendMessage: (chatId: string, message: Message) => void;
-  markAsFavorite: (
-    chatId: string,
-    messageId: string,
-    newState: boolean
-  ) => void;
 };
 
 export const ChatContext = createContext<ChatContextType>({
   messagesByKey: {},
   chats: [],
-  sendMessage: () => {},
-  markAsFavorite: () => {},
 });
 
 export function useChatContext() {
@@ -45,14 +37,6 @@ type Props = PropsWithChildren<{
 export function ChatProvider({ children, userId }: Props) {
   const [messagesByKey, setMessagesByKey] = useState<MessageByKeyType>({});
   const [chats, setChats] = useState<Chat[]>([]);
-
-  const sendMessage = (chatId: string, message: Message) => {};
-
-  const markAsFavorite = (
-    chatId: string,
-    messageId: string,
-    newState: boolean
-  ) => {};
 
   useEffect(() => {
     const subscriber = firestore()
@@ -90,6 +74,7 @@ export function ChatProvider({ children, userId }: Props) {
           _messagesByChat.push({
             id: message.id,
             ...message.data(),
+            createdAt: message.data().createdAt?.toDate(),
             isSender: message.data().senderId === userId,
           } as Message);
         });
@@ -101,9 +86,7 @@ export function ChatProvider({ children, userId }: Props) {
   }, [chats]);
 
   return (
-    <ChatContext.Provider
-      value={{ messagesByKey, chats, sendMessage, markAsFavorite }}
-    >
+    <ChatContext.Provider value={{ messagesByKey, chats }}>
       {children}
     </ChatContext.Provider>
   );

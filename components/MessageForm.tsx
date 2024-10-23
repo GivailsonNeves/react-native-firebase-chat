@@ -1,39 +1,57 @@
 import { useState } from "react";
-import { View, StyleSheet } from "react-native";
-import { IconButton, TextInput } from "react-native-paper";
+import { View, StyleSheet, ActivityIndicator } from "react-native";
+import { IconButton, MD2Colors, TextInput } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
 
 type Props = {
   onSubmit: (text: string, photo?: any) => Promise<void> | void;
+  isSending?: boolean;
 };
 
-export function MessageForm({ onSubmit }: Props) {
+export function MessageForm({ onSubmit, isSending }: Props) {
   const [text, setText] = useState("");
   const [image, setImage] = useState<any>(null);
   const [actionsVisible, setActionsVisible] = useState(false);
 
   const pickImage = async () => {
-    // No permissions request is necessary for launching the image library
     let result = await ImagePicker.launchImageLibraryAsync({
-      // mediaTypes: ImagePicker.MediaTypeOptions.All,
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
-      aspect: [4, 3],
-      quality: 1,
+      aspect: [4, 4],
+      quality: 0.4,
     });
 
     if (!result.canceled) {
       setImage(result.assets[0].uri);
+      setActionsVisible(false);
+      await onSubmit("", result.assets[0].uri);
+      setText("");
+      setImage(null);
     }
   };
 
   const handleSubmit = async () => {
+    setActionsVisible(false);
     await onSubmit(text, image);
     setText("");
+    setImage(null);
   };
 
-  const handleCamera = () => {
-    // pickImage();
+  const handleCamera = async () => {
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [4, 4],
+      quality: 0.4,
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0].uri);
+      setActionsVisible(false);
+      await onSubmit("", result.assets[0].uri);
+      setText("");
+      setImage(null);
+    }
   };
 
   return (
@@ -45,6 +63,7 @@ export function MessageForm({ onSubmit }: Props) {
           style={styles.input}
           placeholder="Type a message"
           value={text}
+          disabled={isSending}
           onChangeText={setText}
           right={
             <TextInput.Icon
@@ -56,15 +75,21 @@ export function MessageForm({ onSubmit }: Props) {
             />
           }
         />
-        {text.length > 0 ? (
-          <IconButton icon="send" onPress={handleSubmit} />
+        {isSending ? (
+          <ActivityIndicator animating={true} color={MD2Colors.red800} />
         ) : (
-          <IconButton
-            icon="plus-box-multiple"
-            onPress={() => {
-              setActionsVisible(!actionsVisible);
-            }}
-          />
+          <>
+            {text.length > 0 ? (
+              <IconButton icon="send" onPress={handleSubmit} />
+            ) : (
+              <IconButton
+                icon="paperclip"
+                onPress={() => {
+                  setActionsVisible(!actionsVisible);
+                }}
+              />
+            )}
+          </>
         )}
       </View>
       {actionsVisible && (

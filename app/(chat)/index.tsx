@@ -11,7 +11,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { AnimatedFAB, IconButton, Menu, Searchbar } from "react-native-paper";
+import { AnimatedFAB, IconButton, Menu, Text } from "react-native-paper";
 import { useChatContext, useUsersContext } from "../context";
 import { useSession } from "../context/auth.ctx";
 
@@ -31,7 +31,6 @@ export default function IndexPage() {
 
   const [visible, setVisible] = React.useState(false);
   const [isExtended, setIsExtended] = React.useState(true);
-  const [searchQuery, setSearchQuery] = React.useState("");
 
   const _logout = () => {
     logout();
@@ -52,17 +51,8 @@ export default function IndexPage() {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.searchBar}>
-        <View
-          style={{
-            flex: 1,
-          }}
-        >
-          <Searchbar
-            placeholder="Search"
-            mode="bar"
-            onChangeText={setSearchQuery}
-            value={searchQuery}
-          />
+        <View style={styles.title}>
+          <Text variant="displaySmall">Chats</Text>
         </View>
         <Menu
           visible={visible}
@@ -81,9 +71,10 @@ export default function IndexPage() {
             chat={item}
             key={item.id}
             user={usersById[item.participantId]}
+            lastMessage={messagesByKey[item.id]?.[0]}
             onPress={() =>
               router.push({
-                pathname: "/(chat)/message/[id]",
+                pathname: "/(chat)/messages/[id]",
                 params: { id: item.participantId, chatId: item.id },
               })
             }
@@ -109,6 +100,11 @@ const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
   },
+  title: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   searchBar: {
     paddingHorizontal: 16,
     paddingTop: 8,
@@ -122,5 +118,6 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 16,
     bottom: 16,
+    opacity: 0.8,
   },
 });

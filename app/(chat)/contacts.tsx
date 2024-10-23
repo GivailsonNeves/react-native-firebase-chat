@@ -1,3 +1,5 @@
+import { User } from "@/models";
+import { chatNameComposer } from "@/utils";
 import { useRouter } from "expo-router";
 import React, { useEffect } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -32,12 +34,7 @@ export default function ContactsPage() {
         <Appbar.Content title="Users" />
       </Appbar.Header>
       <View style={styles.searchBar}>
-        <View
-          style={{
-            flex: 1,
-            paddingBottom: 8,
-          }}
-        >
+        <View style={styles.searchArea}>
           <Searchbar
             placeholder="Search"
             mode="bar"
@@ -48,11 +45,19 @@ export default function ContactsPage() {
         </View>
       </View>
       <ScrollView>
-        {userListFiltered?.map((user: any) => (
+        {userListFiltered?.map((participant: User) => (
           <List.Item
-            key={user.uid}
-            title={user.email}
-            onPress={() => router.push(`/(chat)/message/${user.uid}`)}
+            key={participant.uid}
+            title={participant.email}
+            onPress={() =>
+              router.replace({
+                pathname: "/(chat)/messages/[id]",
+                params: {
+                  id: participant.uid,
+                  chatId: chatNameComposer([participant.uid, user?.uid || ""]),
+                },
+              })
+            }
             right={(props) => <List.Icon {...props} icon="chevron-right" />}
           />
         ))}
@@ -64,6 +69,10 @@ export default function ContactsPage() {
 const styles = StyleSheet.create({
   container: {
     flexGrow: 1,
+  },
+  searchArea: {
+    flex: 1,
+    paddingBottom: 8,
   },
   searchBar: {
     paddingHorizontal: 16,

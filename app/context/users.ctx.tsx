@@ -38,9 +38,11 @@ export function UsersProvider({ children }: PropsWithChildren) {
   const loadData = async () => {
     try {
       setLoading(true);
-      const response = await fetch(
-        "http://127.0.0.1:5001/trashchat-2a0be/us-central1/users"
-      );
+      const response = await fetch(`${process.env.EXPO_PUBLIC_API_URL}/users`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
       const { users } = await response.json();
       setUsers(users);
     } catch (error) {
