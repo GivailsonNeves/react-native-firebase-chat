@@ -22,7 +22,10 @@ I've tried to use a flat approach in the layout application to make it more gene
 The ui framework used here is [React Native Paper](https://callstack.github.io/react-native-paper/), the decision to use it was based specially on his popularity and the simplicity of use.
 
 ### Screen Demos
-
+![Screenshot 2024-10-23 at 21 30 50](https://github.com/user-attachments/assets/2c53034b-048a-4168-aab1-cf56300b5cfb)
+![Screenshot 2024-10-23 at 21 30 15](https://github.com/user-attachments/assets/dd782fe7-418f-411c-b652-4e9bf76d8b18)
+![Screenshot 2024-10-23 at 21 57 51](https://github.com/user-attachments/assets/1d85a8ff-a8dc-4b3f-9050-cbcca63cf374)
+![Screenshot 2024-10-23 at 21 57 59](https://github.com/user-attachments/assets/b042c957-65b2-4781-8947-d6ab40f1dcce)
 
 ## The building process
 
