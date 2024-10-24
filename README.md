@@ -1,4 +1,4 @@
-# Welcome to your Expo app 👋
+# Welcome to TrashChat 👋
 
 This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
 
@@ -16,35 +16,17 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
     npx expo start
    ```
 
-In the output, you'll find options to open the app in a
+## Design
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+I've tried to use a flat approach in the layout application to make it more generic and open to any desired customization.
+The ui framework used here is [React Native Paper](https://callstack.github.io/react-native-paper/), the decision to use it was based specially on his popularity and the simplicity of use.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+### Screen Demos
 
-## Get a fresh project
 
-When you're ready, run:
+## The building process
 
-```bash
-npm run reset-project
-```
-
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+- First I had to decide which cloud resources to use, after a quick research I decided to move on with Google Cloud, because it give me the chance to work in only one provider for everthing.
+- The next step was to prepare the database structure so that I could meet all the project requirements.
+- The Authorization process was the third step. And I had to figured out how to integrate the users from Auth to the users in the chat.
+- To be able to list all the users created from the Auth process. I created a Cloud Function that was able to do it for me.

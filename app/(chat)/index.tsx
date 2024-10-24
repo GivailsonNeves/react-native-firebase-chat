@@ -11,7 +11,7 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { AnimatedFAB, IconButton, Menu, Text, useTheme } from "react-native-paper";
+import { AnimatedFAB, Button, IconButton, Menu, Text, useTheme } from "react-native-paper";
 import { useChatContext, useUsersContext } from "../context";
 import { useSession } from "../context/auth.ctx";
 
@@ -68,6 +68,21 @@ export default function IndexPage() {
           <Menu.Item onPress={() => _logout()} title="Exit" />
         </Menu>
       </View>
+      {
+        // @ts-ignore
+        !chats.length && (
+          <View style={styles.title}>
+            <Text variant="headlineSmall" style={
+              {
+                marginBottom: 16,
+              }
+            }>No chats yet?</Text>
+            <Button mode="outlined" onPress={() => router.push("/contacts")}>
+              Start a new chat
+            </Button>
+          </View>
+        )
+      }
       <ScrollView onScroll={onScroll} style={styles.list}>
         {chats.map((item) => (
           <ChatItem
