@@ -1,4 +1,4 @@
-import { Chat, Message, User } from "@/models";
+import { Chat, Message } from "@/models";
 import {
   createContext,
   PropsWithChildren,

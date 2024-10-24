@@ -5,10 +5,12 @@ import React, { useEffect } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { Appbar, List, Searchbar } from "react-native-paper";
 import { useSession, useUsersContext } from "../context";
+import { useAppTheme } from "@/hooks";
 
 export default function ContactsPage() {
   const _goBack = () => router.back();
   const { user } = useSession();
+  const {colors} = useAppTheme();
 
   const { refetch, users } = useUsersContext();
 
@@ -29,7 +31,9 @@ export default function ContactsPage() {
   const router = useRouter();
   return (
     <View style={styles.container}>
-      <Appbar.Header mode="small">
+      <Appbar.Header mode="small" style={{
+        backgroundColor: colors.surfaceVariant,
+      }}>
         <Appbar.BackAction onPress={_goBack} />
         <Appbar.Content title="Users" />
       </Appbar.Header>

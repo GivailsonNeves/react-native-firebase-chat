@@ -46,7 +46,7 @@ export function UsersProvider({ children }: PropsWithChildren) {
       const { users } = await response.json();
       setUsers(users);
     } catch (error) {
-      console.error(error);
+      throw error;
     } finally {
       setLoading(false);
     }

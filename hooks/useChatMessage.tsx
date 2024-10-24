@@ -69,26 +69,21 @@ export function useChatMessage({
           photoUrl,
         });
     } catch (error) {
-      console.error(error);
+      throw error;
     } finally {
       setIsSending(false);
     }
   };
 
   const toggleFavorite = async (messageId: string) => {
-    try {
-      const message = messages.find((message) => message.id === messageId);
-      console.log(message, messageId);
-      if (message) {
-        await firestore()
-          .collection(`chats/${chatId}/messages`)
-          .doc(messageId)
-          .update({
-            liked: !message.liked,
-          });
-      }
-    } catch (error) {
-      console.error(error);
+    const message = messages.find((message) => message.id === messageId);
+    if (message) {
+      await firestore()
+        .collection(`chats/${chatId}/messages`)
+        .doc(messageId)
+        .update({
+          liked: !message.liked,
+        });
     }
   };
 

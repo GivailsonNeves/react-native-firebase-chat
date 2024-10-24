@@ -17,7 +17,7 @@ export function ChatItem({ chat, onPress, user, lastMessage }: Props) {
   return (
     <List.Item
       onPress={onPress}
-      key={chat.id}
+      key={chat.id}      
       title={(props) => (
         <View {...props} style={styles.textContainer}>
           <Text>{extractNameFromEmail(user?.email)}</Text>
@@ -25,9 +25,8 @@ export function ChatItem({ chat, onPress, user, lastMessage }: Props) {
         </View>
       )}
       description={
-        <View style={styles.lastMessageContainer}>
-          <Text>{lastMessage?.text.substring(0, 10)}...</Text>
-          <Icon source="chevron-right" size={20} />
+        <View>
+          <Text style={{flex:1}}>{lastMessage?.text.substring(0, 10)}...</Text>          
         </View>
       }
       left={(props) => (
@@ -37,6 +36,9 @@ export function ChatItem({ chat, onPress, user, lastMessage }: Props) {
           color={theme.colors.surface}
           label={firstLetter(user?.email)}
         />
+      )}
+      right={(props) => (
+        <Icon {...props} source="chevron-right" size={40} />
       )}
     />
   );
@@ -51,9 +53,4 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   timeText: { fontSize: 10 },
-  lastMessageContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    width: "100%",
-  },
 });

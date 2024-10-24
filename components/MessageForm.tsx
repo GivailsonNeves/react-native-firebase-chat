@@ -2,6 +2,7 @@ import { useState } from "react";
 import { View, StyleSheet, ActivityIndicator } from "react-native";
 import { IconButton, MD2Colors, TextInput } from "react-native-paper";
 import * as ImagePicker from "expo-image-picker";
+import { useAppTheme } from "@/hooks";
 
 type Props = {
   onSubmit: (text: string, photo?: any) => Promise<void> | void;
@@ -12,6 +13,7 @@ export function MessageForm({ onSubmit, isSending }: Props) {
   const [text, setText] = useState("");
   const [image, setImage] = useState<any>(null);
   const [actionsVisible, setActionsVisible] = useState(false);
+  const {colors} = useAppTheme();
 
   const pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -55,8 +57,11 @@ export function MessageForm({ onSubmit, isSending }: Props) {
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.content}>
+    <View>
+      <View style={[
+        styles.content,
+        { backgroundColor:  colors.surfaceVariant},
+        ]}>
         <TextInput
           mode="outlined"
           autoCapitalize="none"
@@ -93,7 +98,9 @@ export function MessageForm({ onSubmit, isSending }: Props) {
         )}
       </View>
       {actionsVisible && (
-        <View style={styles.actions}>
+        <View style={[styles.actions, {
+          backgroundColor: colors.surfaceVariant,          
+        }]}>
           <IconButton mode="outlined" icon="camera" onPress={handleCamera} />
           <IconButton mode="outlined" icon="image" onPress={pickImage} />
         </View>
@@ -102,21 +109,16 @@ export function MessageForm({ onSubmit, isSending }: Props) {
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: "#ccc",
-  },
-  content: {
-    backgroundColor: "#ccc",
+const styles = StyleSheet.create({  
+  content: {    
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     padding: 16,
   },
-  actions: {
-    backgroundColor: "#ccc",
+  actions: {    
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "center",    
     justifyContent: "center",
     paddingVertical: 16,
     gap: 8,

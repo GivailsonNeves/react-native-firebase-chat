@@ -1,10 +1,11 @@
 import { useSession, useUsersContext } from "@/app/context";
 import { MessageBox, MessageForm } from "@/components";
+import { useAppTheme } from "@/hooks";
 import { useChatMessage } from "@/hooks/useChatMessage";
+import { extractNameFromEmail } from "@/utils";
 import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { extractNameFromEmail } from "@/utils";
 import {
   Dimensions,
   FlatList,
@@ -15,7 +16,7 @@ import {
   View,
 } from "react-native";
 import { useKeyboardHandler } from "react-native-keyboard-controller";
-import { Appbar, FAB } from "react-native-paper";
+import { Appbar, FAB, Snackbar } from "react-native-paper";
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -43,9 +44,10 @@ export default function MessagesPage() {
   const router = useRouter();
 
   const listRef = useRef<FlatList>(null);
-  const [status, requestPermission] = ImagePicker.useCameraPermissions();
+  const [_, requestPermission] = ImagePicker.useCameraPermissions();
+  const [error, setError] = useState("");
 
-  console.log({ status });
+  const { colors } = useAppTheme();
 
   const { user } = useSession();
   const { findUser } = useUsersContext();
@@ -91,8 +93,20 @@ export default function MessagesPage() {
   const _goBack = () => router.back();
 
   const handleSubmit = async (text: string, photoUrl: string) => {
-    await sendMessage({ text, photoUrl });
-    Keyboard.dismiss();
+    try {
+      await sendMessage({ text, photoUrl });
+      Keyboard.dismiss();
+    } catch (_) {
+      setError("Error while sending message");
+    }
+  };
+
+  const handleToggleFavorite = async (id: string) => {
+    try {
+      await toggleFavorite(id);
+    } catch (_) {
+      setError("Error while toggling favorite");
+    }
   };
 
   return (
@@ -104,7 +118,12 @@ export default function MessagesPage() {
           flexDirection: "column",
         }}
       >
-        <Appbar.Header mode="small">
+        <Appbar.Header
+          mode="small"
+          style={{
+            backgroundColor: colors.surfaceVariant,
+          }}
+        >
           <Appbar.BackAction onPress={_goBack} />
           <Appbar.Content title={extractNameFromEmail(recipe?.email)} />
         </Appbar.Header>
@@ -114,10 +133,7 @@ export default function MessagesPage() {
           renderItem={({ item }) => (
             <MessageBox
               message={item}
-              onDoubleTap={async () => {
-                console.log("double tap");
-                toggleFavorite(item.id).catch(console.error);
-              }}
+              onDoubleTap={() => handleToggleFavorite(item.id)}
             />
           )}
           keyExtractor={(item) => item.id}
@@ -136,6 +152,17 @@ export default function MessagesPage() {
         <MessageForm onSubmit={handleSubmit} isSending={isSending} />
         <Animated.View style={keyboardSpacer} />
       </View>
+      <Snackbar
+        visible={!!error}
+        onDismiss={() => setError("")}
+        duration={3000}
+        action={{
+          label: "Close",
+          onPress: () => setError(""),
+        }}
+      >
+        {error}
+      </Snackbar>
     </>
   );
 }

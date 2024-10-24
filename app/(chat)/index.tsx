@@ -11,12 +11,13 @@ import {
   StyleSheet,
   View,
 } from "react-native";
-import { AnimatedFAB, IconButton, Menu, Text } from "react-native-paper";
+import { AnimatedFAB, IconButton, Menu, Text, useTheme } from "react-native-paper";
 import { useChatContext, useUsersContext } from "../context";
 import { useSession } from "../context/auth.ctx";
 
 export default function IndexPage() {
   const router = useRouter();
+  const { colors } = useTheme();
 
   const { logout } = useSession();
   const { users } = useUsersContext();
@@ -50,7 +51,9 @@ export default function IndexPage() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.searchBar}>
+      <View style={[styles.titleBar, {
+        backgroundColor: colors.surfaceVariant,
+      }]}>
         <View style={styles.title}>
           <Text variant="displaySmall">Chats</Text>
         </View>
@@ -89,8 +92,9 @@ export default function IndexPage() {
           router.push("/contacts");
         }}
         animateFrom={"right"}
-        iconMode="dynamic"
+        iconMode="dynamic"        
         style={[styles.fabStyle]}
+        variant="surface"
       />
     </SafeAreaView>
   );
@@ -105,7 +109,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
-  searchBar: {
+  titleBar: {
     paddingHorizontal: 16,
     paddingTop: 8,
     flexDirection: "row",
@@ -118,6 +122,5 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: 16,
     bottom: 16,
-    opacity: 0.8,
   },
 });
