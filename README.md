@@ -16,6 +16,10 @@ This is an [Expo](https://expo.dev) project created with [`create-expo-app`](htt
     npx expo start
    ```
 
+## Project Demo
+
+https://drive.google.com/file/d/17_HEj48iHA_kgYNskbm6IBEvVO_drvO9/view
+
 ## Design
 
 I've tried to use a flat approach in the layout application to make it more generic and open to any desired customization.
